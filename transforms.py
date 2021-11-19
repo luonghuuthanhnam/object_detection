@@ -2,7 +2,7 @@ import random
 import torch
 import numpy as np
 from torchvision.transforms import functional as F
-from PIL import Image
+from PIL import Image, ImageFilter
 import PIL
 import torchvision
 
@@ -136,6 +136,21 @@ class GaussNoise(object):
                 print("not support keypoints")
         return image, target
 
+class Blur(object):
+    def __init__(self, prob, blur_range = (0,3)):
+        self.prob = prob
+        self.s_blur, self.e_blur = blur_range
+    def __call__(self, image, target):
+        if random.random() < self.prob:
+            pil_img = tensor_to_PIL(image)
+            radius = random.randrange(self.s_blur,self.e_blur)
+            pil_img = pil_img.filter(ImageFilter.GaussianBlur(radius))
+            image = F.to_tensor(pil_img)
+            if "masks" in target:
+                print("not support masks")
+            if "keypoints" in target:
+                print("not support keypoints")
+        return image, target
 
 class ToTensor(object):
     def __call__(self, image, target):
